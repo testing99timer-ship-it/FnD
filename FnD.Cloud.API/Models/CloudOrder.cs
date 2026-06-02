@@ -21,6 +21,8 @@ public class CloudOrder
 
     // Navigation property for the items in this order
     public List<CloudOrderItem> Items { get; set; } = new();
+
+    public string TenantId { get; set; } = string.Empty; // ◄ THE NEW SHIELD
 }
 
 public class CloudOrderItem

@@ -13,32 +13,36 @@ public class DashboardReportingService
         _dbContext = dbContext;
     }
 
-    public async Task<DashboardSummaryDto> GetLiveManagementDashboardAsync()
+    /// <summary>
+    /// Compiles high-level financial KPIs, stock alerts, and top product performances isolated by store tenancy.
+    /// </summary>
+    public async Task<DashboardSummaryDto> GetLiveManagementDashboardAsync(string tenantId)
     {
         var todayUtc = DateTime.UtcNow.Date;
 
-        // 1. Calculate high-level core KPI financial metrics for today
+        // 1. Calculate high-level core KPI financial metrics for today (Enforced by TenantId)
         var todayOrdersQuery = _dbContext.Orders
-            .Where(o => o.OrderDate >= todayUtc);
+            .Where(o => o.OrderDate >= todayUtc && o.TenantId == tenantId);
 
         var todayRevenue = await todayOrdersQuery.SumAsync(o => o.TotalAmount);
         var todayOrderCount = await todayOrdersQuery.CountAsync();
         var averageOrderValue = todayOrderCount > 0 ? todayRevenue / todayOrderCount : 0;
 
-        // 2. Compute count of items that are running critically low on stock (e.g., < 5 items)
+        // 2. Compute count of items running critically low on stock (Scoped by TenantId)
+        // Note: Assumes your Product model has a TenantId or is linked to this tenant context
         var lowStockCount = await _dbContext.Products
-            .Where(p => p.StockQuantity <= 5)
+            .Where(p => p.StockQuantity <= 5 && p.TenantId == tenantId)
             .CountAsync();
 
-        // 3. Extract Top 5 selling items using an explicit LINQ Join to bypass missing navigation properties
+        // 3. Extract Top 5 selling items within this tenant's dataset
         var topProducts = await _dbContext.Orders
-            .Where(o => o.Items != null)
+            .Where(o => o.TenantId == tenantId && o.Items != null) // ◄ Strict boundary before flattening items
             .SelectMany(o => o.Items)
             .Join(
-                _dbContext.Products,
+                _dbContext.Products.Where(p => p.TenantId == tenantId), // ◄ Match only this tenant's inventory items
                 item => item.ProductId,      // Foreign key on CloudOrderItem
                 product => product.Id,       // Primary key on Product
-                (item, product) => new { item, product } // Combine them into a flat anonymous type
+                (item, product) => new { item, product }
             )
             .GroupBy(joined => new { joined.item.ProductId, joined.product.Name })
             .Select(group => new TopProductDto

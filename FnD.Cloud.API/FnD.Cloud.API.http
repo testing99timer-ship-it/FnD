@@ -41,3 +41,14 @@ Accept: application/json
 ### Test Gateway Routing to Dashboard Reporting
 GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
 Accept: application/json
+
+### 1. Test Unauthenticated Request (Expect 401 Unauthorized)
+GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
+Accept: application/json
+
+###
+
+### 2. Test Authenticated Request (Expect 200 OK)
+GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
+Accept: application/json
+X-Tenant-Id: TENANT_STORE_DELHI_01

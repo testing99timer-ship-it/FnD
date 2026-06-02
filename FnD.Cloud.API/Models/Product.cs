@@ -9,4 +9,5 @@ public class Product
     public int StockQuantity { get; set; }
     [Column(TypeName = "decimal(18,2)")]
     public decimal Price { get; set; }
+    public string? TenantId { get; internal set; }
 }

@@ -1,0 +1,114 @@
+@hostname = localhost
+### Change this port to match your local running profile (IIS Express or Kestrel)
+@port = 7125
+@host = https://{{hostname}}:{{port}}
+
+### ==========================================
+### TEST 1: Sync Brand New Orders for Tenant A
+### ==========================================
+POST {{host}}/api/sync/orders
+X-Tenant-Id: Store_Alpha_001
+Content-Type: application/json
+
+[
+  {
+    "localOrderId": 101,
+    "orderDate": "2026-06-02T10:30:00Z",
+    "totalAmount": 45.50,
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 2,
+        "unitPrice": 15.00
+      },
+      {
+        "productId": 2,
+        "quantity": 1,
+        "unitPrice": 15.50
+      }
+    ]
+  },
+  {
+    "localOrderId": 102,
+    "orderDate": "2026-06-02T11:15:00Z",
+    "totalAmount": 20.00,
+    "items": [
+      {
+        "productId": 3,
+        "quantity": 4,
+        "unitPrice": 5.00
+      }
+    ]
+  }
+]
+
+###
+
+### ==========================================
+### TEST 2: Resend Same Payload (Verify Duplicate Filtering)
+### ==========================================
+# This should report processedCount: 0 and duplicateCount: 2
+POST {{host}}/api/sync/orders
+X-Tenant-Id: Store_Alpha_001
+Content-Type: application/json
+
+[
+  {
+    "localOrderId": 101,
+    "orderDate": "2026-06-02T10:30:00Z",
+    "totalAmount": 45.50,
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 2,
+        "unitPrice": 15.00
+      }
+    ]
+  }
+]
+
+###
+
+### ==========================================
+### TEST 3: Cross-Tenant Isolation Validation
+### ==========================================
+# Sending localOrderId 101 for Tenant B should succeed cleanly 
+# because isolation limits the duplicate check within tenant rows.
+POST {{host}}/api/sync/orders
+X-Tenant-Id: Store_Beta_002
+Content-Type: application/json
+
+[
+  {
+    "localOrderId": 101,
+    "orderDate": "2026-06-02T12:00:00Z",
+    "totalAmount": 15.00,
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 15.00
+      }
+    ]
+  }
+]
+
+###
+
+### ==========================================
+### TEST 4: Fetch Live Dashboard Metrics
+### ==========================================
+GET {{host}}/api/reports/dashboard
+X-Tenant-Id: Store_Alpha_001
+
+###
+
+### ==========================================
+### TEST 5: Ask Business Question (AI Brain)
+### ==========================================
+POST {{host}}/api/ai/ask
+Content-Type: application/json
+
+{
+  "question": "Which product saw the highest stock deduction variance over the last synchronization cycle?"
+}
