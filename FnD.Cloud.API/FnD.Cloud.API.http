@@ -1,0 +1,43 @@
+@FnD.Cloud.API_HostAddress = http://localhost:5253
+
+### 1. Execute the Ingestion, Inventory, Audit, and Notification Pipeline
+POST {{FnD.Cloud.API_HostAddress}}/api/sync/orders
+Content-Type: application/json
+
+[
+  {
+    "localOrderId": 101,
+    "orderDate": "2026-06-01T16:00:00Z",
+    "totalAmount": 500.00,
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 2,
+        "unitPrice": 250.00
+      }
+    ]
+  }
+]
+
+###
+
+### 2. Verify Data State Immediately with the AI Text-to-SQL Engine
+POST {{FnD.Cloud.API_HostAddress}}/api/ai/ask
+Content-Type: application/json
+
+{
+  "question": "What is the total value of order number 101, and how many items were processed?"
+}
+
+###
+
+### 3. Fetch Structured Operational Dashboard Performance Metrics
+GET {{FnD.Cloud.API_HostAddress}}/api/reports/dashboard
+Accept: application/json
+
+
+@FnD.Gateway_HostAddress = http://localhost:5000
+
+### Test Gateway Routing to Dashboard Reporting
+GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
+Accept: application/json

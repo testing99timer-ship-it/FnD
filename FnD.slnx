@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/Client Applications/" />
+  <Folder Name="/Cloud Infrastructure/">
+    <Project Path="FnD.Cloud.API/FnD.Cloud.API.csproj" />
+    <Project Path="FnD.Gateway.API/FnD.Gateway.API.csproj" />
+  </Folder>
+  <Folder Name="/Shared Layer/">
+    <Project Path="FnD.Shared/FnD.Shared.csproj" />
+  </Folder>
+</Solution>
