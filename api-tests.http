@@ -1,7 +1,9 @@
 @hostname = localhost
 ### Change this port to match your local running profile (IIS Express or Kestrel)
-@port = 7125
-@host = https://{{hostname}}:{{port}}
+## FIXED: Port changed from 7125 to match your live backend service port
+# @port = 7109
+@port = 5107
+@host = http://{{hostname}}:{{port}}
 
 ### ==========================================
 ### TEST 1: Sync Brand New Orders for Tenant A

@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
+using System.Threading.Tasks;
 
 namespace FnD.Gateway.API.Middleware;
 
@@ -16,6 +17,13 @@ public class TenantValidationMiddleware
 
     public async Task InvokeAsync(HttpContext context)
     {
+        // 🔥 FIX: Bypass tenant verification for browser CORS preflight (OPTIONS) requests
+        if (HttpMethods.IsOptions(context.Request.Method))
+        {
+            await _next(context);
+            return;
+        }
+
         // 1. Extract the Tenant ID from custom HTTP Headers
         if (!context.Request.Headers.TryGetValue("X-Tenant-Id", out var tenantId) || string.IsNullOrWhiteSpace(tenantId))
         {
@@ -37,7 +45,7 @@ public class TenantValidationMiddleware
         // 3. Append tenant tracking context into the request pipeline log headers
         _logger.LogInformation("Routing verified request for Tenant: {TenantId} -> {Path}", tenantId, context.Request.Path);
 
-        // Pass the ball to the next middleware (YARP Reverse Proxy)
+        // Pass the request to the next component in the pipeline (YARP Proxy)
         await _next(context);
     }
 }

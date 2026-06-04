@@ -1,8 +1,10 @@
-@FnD.Cloud.API_HostAddress = http://localhost:5253
+@FnD.Gateway_HostAddress = http://localhost:5000
+@FnD.Cloud.API_HostAddress = http://localhost:5107
 
-### 1. Execute the Ingestion, Inventory, Audit, and Notification Pipeline
-POST {{FnD.Cloud.API_HostAddress}}/api/sync/orders
+### 1. Execute Sync via Gateway
+POST {{FnD.Gateway_HostAddress}}/api/sync/orders
 Content-Type: application/json
+X-Tenant-Id: TENANT_STORE_DELHI_01
 
 [
   {
@@ -33,22 +35,5 @@ Content-Type: application/json
 
 ### 3. Fetch Structured Operational Dashboard Performance Metrics
 GET {{FnD.Cloud.API_HostAddress}}/api/reports/dashboard
-Accept: application/json
-
-
-@FnD.Gateway_HostAddress = http://localhost:5000
-
-### Test Gateway Routing to Dashboard Reporting
-GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
-Accept: application/json
-
-### 1. Test Unauthenticated Request (Expect 401 Unauthorized)
-GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
-Accept: application/json
-
-###
-
-### 2. Test Authenticated Request (Expect 200 OK)
-GET {{FnD.Gateway_HostAddress}}/api/reports/dashboard
 Accept: application/json
 X-Tenant-Id: TENANT_STORE_DELHI_01

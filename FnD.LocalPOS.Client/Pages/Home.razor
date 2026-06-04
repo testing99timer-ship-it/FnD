@@ -1,0 +1,187 @@
+﻿@page "/"
+@using FnD.LocalPOS.Client.Models @* Or wherever your shared models are located *@
+
+<div class="pos-workspace container-fluid vh-100 d-flex flex-column bg-dark text-light p-0 m-0">
+
+    <div class="pos-header d-flex justify-content-between align-items-center bg-black px-4 py-2 border-bottom border-secondary">
+        <div class="d-flex align-items-center gap-3">
+            <span class="fw-bold text-warning h4 m-0">FnD Pro POS v1.0</span>
+            <span class="badge bg-success">Connected</span>
+        </div>
+        <div class="d-flex align-items-center gap-4">
+            <div class="text-end small">
+                <div class="text-secondary">ACTIVE TENANT</div>
+                <div class="fw-bold text-info">Store_Alpha_001</div>
+            </div>
+            <button class="btn btn-outline-warning btn-sm" @onclick="TriggerCloudSyncAsync">
+                <i class="bi bi-arrow-repeat"></i> Sync Terminal
+            </button>
+        </div>
+    </div>
+
+    <div class="pos-body d-flex flex-grow-1 overflow-hidden">
+
+        <div class="cart-panel d-flex flex-column bg-white text-dark border-end border-secondary" style="width: 400px; min-width: 400px;">
+            <div class="p-3 border-bottom border-2 bg-light d-flex justify-content-between align-items-center">
+                <span class="h5 fw-bold mb-0 text-uppercase">Current Sale</span>
+                <span class="badge bg-secondary">@CartItems.Sum(i => i.Quantity) Items</span>
+            </div>
+
+            <div class="receipt-items flex-grow-1 overflow-auto p-3 bg-white">
+                @if (!CartItems.Any())
+                {
+                    <div class="h-100 d-flex flex-column justify-content-center align-items-center text-muted py-5">
+                        <i class="bi bi-cart-x display-4 text-secondary mb-2"></i>
+                        <span>Basket is empty</span>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var item in CartItems)
+                    {
+                        <div class="cart-row d-flex justify-content-between align-items-center border-bottom py-2">
+                            <div>
+                                <div class="fw-bold text-dark">@item.ProductName</div>
+                                <div class="text-muted small">@item.UnitPrice.ToString("C") × @item.Quantity</div>
+                            </div>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="fw-bold me-2">@((item.UnitPrice * item.Quantity).ToString("C"))</span>
+                                <button class="btn btn-sm btn-outline-danger border-0" @onclick="() => RemoveFromCart(item)">
+                                    <span class="fw-bold">×</span>
+                                </button>
+                            </div>
+                        </div>
+                    }
+                }
+            </div>
+
+            <div class="p-3 bg-light border-top border-2 mt-auto">
+                <div class="d-flex justify-content-between h5 mb-2 text-secondary">
+                    <span>Subtotal</span>
+                    <span>@SubTotal.ToString("C")</span>
+                </div>
+                <div class="d-flex justify-content-between h3 fw-black mb-3 text-dark">
+                    <span>TOTAL:</span>
+                    <span class="text-success fw-bold">@SubTotal.ToString("C")</span>
+                </div>
+                <button class="btn btn-success w-100 py-3 fw-bold h4 m-0 shadow-sm"
+                        disabled="@(!CartItems.Any())"
+                        @onclick="ProcessPaymentAndQueueSyncAsync">
+                    PAY & SYNC
+                </button>
+            </div>
+        </div>
+
+        <div class="catalog-panel flex-grow-1 d-flex flex-column p-3 bg-gradient">
+            <div class="d-flex gap-2 mb-3 overflow-auto pb-1">
+                <button class="btn btn-warning px-4 fw-bold shadow-sm">ALL PRODUCTS</button>
+                <button class="btn btn-outline-light px-4">HARDWARE</button>
+                <button class="btn btn-outline-light px-4">PERIPHERALS</button>
+                <button class="btn btn-outline-light px-4">SERVICES</button>
+            </div>
+
+            <div class="product-grid flex-grow-1 overflow-auto">
+                <div class="row row-cols-2 row-cols-md-3 row-cols-xl-4 g-3">
+                    @foreach (var prod in LocalCatalog)
+                    {
+                        <div class="col">
+                            <div class="card h-100 bg-secondary text-white border-0 shadow-sm product-tile"
+                                 @onclick="() => AddToCart(prod)">
+                                <div class="card-body d-flex flex-column justify-content-between p-3" style="height: 130px; cursor: pointer;">
+                                    <h5 class="card-title fw-bold text-truncate mb-1">@prod.Name</h5>
+                                    <div class="d-flex justify-content-between align-items-center mt-auto">
+                                        <span class="badge bg-dark px-2 py-1">SKU-0@prod.Id</span>
+                                        <span class="h5 fw-bold text-warning mb-0">@prod.Price.ToString("C")</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<style>
+    /* High-contrast Touch Screen Layout Enhancements */
+    .product-tile {
+        transition: transform 0.1s ease, filter 0.1s ease;
+        border-radius: 10px !important;
+        background-color: #2b3035 !important;
+    }
+
+        .product-tile:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.15);
+        }
+
+        .product-tile:active {
+            transform: scale(0.96);
+        }
+
+    .receipt-items::-webkit-scrollbar, .product-grid::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .receipt-items::-webkit-scrollbar-thumb, .product-grid::-webkit-scrollbar-thumb {
+        background: #6c757d;
+        border-radius: 4px;
+    }
+</style>
+
+@code {
+    // Structural POS Mock State Layer
+    private List<ProductModel> LocalCatalog = new()
+    {
+        new() { Id = 1, Name = "Laser Barcode Scanner", Price = 150.00M },
+        new() { Id = 2, Name = "Mechanical POS Keyboard", Price = 85.50M },
+        new() { Id = 3, Name = "Thermal Receipt Printer", Price = 120.00M },
+        new() { Id = 4, Name = "Customer Facing LCD Display", Price = 210.00M },
+        new() { Id = 5, Name = "Heavy Duty Cash Drawer", Price = 95.00M },
+        new() { Id = 6, Name = "Cat6 Networking Patch Cable", Price = 12.99M }
+    };
+
+    private List<CartItemModel> CartItems = new();
+    private decimal SubTotal => CartItems.Sum(i => i.UnitPrice * i.Quantity);
+
+    private void AddToCart(ProductModel product)
+    {
+        var existing = CartItems.FirstOrDefault(i => i.ProductId == product.Id);
+        if (existing != null)
+        {
+            existing.Quantity++;
+        }
+        else
+        {
+            CartItems.Add(new CartItemModel
+            {
+                ProductId = product.Id,
+                ProductName = product.Name,
+                UnitPrice = product.Price,
+                Quantity = 1
+            });
+        }
+    }
+
+    private void RemoveFromCart(CartItemModel item)
+    {
+        CartItems.Remove(item);
+    }
+
+    private async Task TriggerCloudSyncAsync()
+    {
+        // Your existing pipeline background worker triggering mechanism goes here
+    }
+
+    private async Task ProcessPaymentAndQueueSyncAsync()
+    {
+        // 1. Process local checkout actions...
+        // 2. Clear out checkout interface state...
+        CartItems.Clear();
+    }
+
+    public class ProductModel { public int Id { get; set; } public string Name { get; set; } = ""; public decimal Price { get; set; } }
+    public class CartItemModel { public int ProductId { get; set; } public string ProductName { get; set; } = ""; public decimal UnitPrice { get; set; } public int Quantity { get; set; } }
+}

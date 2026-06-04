@@ -1,0 +1,91 @@
+/* Custom UI enhancements for a professional retail dashboard appearance */
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: #f4f6f9 !important;
+}
+
+/* Crisp edge lines for enterprise card layouts */
+.card {
+    border-radius: 10px !important;
+    border: 1px solid rgba(0, 0, 0, 0.08) !important;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Subtle interactive scaling effect for product catalog tiles */
+.product-card {
+    cursor: pointer;
+}
+
+    .product-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.05) !important;
+    }
+
+/* Dark-mode styling for the network data console */
+.diagnostic-console {
+    background-color: #1a1d20 !important;
+    border: 1px solid #2d3238 !important;
+    border-radius: 8px;
+}
+
+    .diagnostic-console pre {
+        color: #4af626 !important; /* Classic terminal green text */
+        font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+        font-size: 0.875rem;
+        line-height: 1.5;
+    }
+
+/* Smooth custom scrollbars for logs and item queues */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.02);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.15);
+    border-radius: 4px;
+}
+
+    ::-webkit-scrollbar-thumb:hover {
+        background: rgba(0,0,0,0.25);
+    }
+
+/* Fixed alignment configurations for tiny UI elements */
+.btn-xs {
+    padding: 0.125rem 0.4rem;
+    font-size: 0.75rem;
+    border-radius: 4px;
+}
+
+/* Add this to your <style> block in Home.razor */
+.pos-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 10px;
+}
+
+.product-tile {
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    border-radius: 8px;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
+.receipt-area {
+    background: #f8f9fa;
+    border-right: 2px solid #dee2e6;
+    height: calc(100vh - 150px);
+    overflow-y: auto;
+}

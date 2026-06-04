@@ -1,6 +1,7 @@
 <Solution>
   <Folder Name="/Client Applications/">
     <Project Path="FnD.Client.Infrastructure/FnD.Client.Infrastructure.csproj" Id="0a126587-471d-4fe7-b476-7f0cfc2490b1" />
+    <Project Path="FnD.LocalPOS.Client/FnD.LocalPOS.Client.csproj" Id="79b311ae-ed8c-427a-87ce-3d50d9057158" />
   </Folder>
   <Folder Name="/Cloud Infrastructure/">
     <Project Path="FnD.Cloud.API/FnD.Cloud.API.csproj" />

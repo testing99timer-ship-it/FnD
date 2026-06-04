@@ -5,6 +5,17 @@ using FnD.Shared.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// --- ADD CORS POLICY POLICY HERE ---
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()   // Permits local browser ports to reach endpoint rows
+              .AllowAnyHeader()   // Crucial to allow incoming custom headers like X-Tenant-Id
+              .AllowAnyMethod();
+    });
+});
+
 // Hook up SQL Server
 builder.Services.AddDbContext<CloudDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -30,6 +41,10 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+
+// --- ACTIVATE CORS BEFORE ENDPOINTS ---
+app.UseCors();
+// --------------------------------------
 
 app.UseHttpsRedirection();
 

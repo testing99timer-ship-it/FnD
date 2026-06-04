@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace FnD.Cloud.API.Migrations
 {
     [DbContext(typeof(CloudDbContext))]
-    [Migration("20260602100539_AddTenantIdToOrders")]
+    [Migration("20260604063830_AddTenantIdToOrders")]
     partial class AddTenantIdToOrders
     {
         /// <inheritdoc />
@@ -42,6 +42,10 @@ namespace FnD.Cloud.API.Migrations
                     b.Property<DateTime>("SyncedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<decimal>("TotalAmount")
                         .HasColumnType("decimal(18,2)");
 
@@ -61,6 +65,9 @@ namespace FnD.Cloud.API.Migrations
                     b.Property<int>("CloudOrderId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("OrderId")
+                        .HasColumnType("int");
+
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
@@ -74,7 +81,35 @@ namespace FnD.Cloud.API.Migrations
 
                     b.HasIndex("CloudOrderId");
 
-                    b.ToTable("OrderItems");
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("CloudOrderItem");
+                });
+
+            modelBuilder.Entity("FnD.Cloud.API.Models.Order", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("LocalOrderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("OrderDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("TenantId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("TotalAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("FnD.Cloud.API.Models.Product", b =>
@@ -94,6 +129,9 @@ namespace FnD.Cloud.API.Migrations
 
                     b.Property<int>("StockQuantity")
                         .HasColumnType("int");
+
+                    b.Property<string>("TenantId")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -141,10 +179,19 @@ namespace FnD.Cloud.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("FnD.Cloud.API.Models.Order", null)
+                        .WithMany("Items")
+                        .HasForeignKey("OrderId");
+
                     b.Navigation("Order");
                 });
 
             modelBuilder.Entity("FnD.Cloud.API.Models.CloudOrder", b =>
+                {
+                    b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("FnD.Cloud.API.Models.Order", b =>
                 {
                     b.Navigation("Items");
                 });

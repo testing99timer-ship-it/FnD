@@ -1,0 +1,35 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page text-dark bg-light min-vh-100 d-flex flex-column">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark px-4 border-bottom border-warning border-3 shadow-sm">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold text-warning fs-4 d-flex align-items-center gap-2" href="#">
+                ⚡ FnD Edge Engine <span class="badge bg-secondary fs-6 text-uppercase">v10.0-WASM</span>
+            </a>
+
+            <div class="d-flex align-items-center gap-3">
+                <span class="text-white-50 font-monospace small">Terminal Node: DEV-LOCAL-01</span>
+                <span class="badge bg-success rounded-pill px-3 py-2 border border-light">● ONLINE SYNC READY</span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow-1 container-fluid px-4 py-4">
+        @Body
+    </main>
+
+    <footer class="bg-dark text-white-50 text-center py-2 border-top border-secondary font-monospace small">
+        FnD Synchronization Pipeline &copy; 2026 — Secure Multi-Tenant Architecture
+    </footer>
+</div>
+
+<style>
+    body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background-color: #f8f9fa;
+    }
+
+    .fw-mono {
+        font-family: monospace;
+    }
+</style>
